@@ -12,8 +12,6 @@
 
 using namespace std;
 
-
-
 /*====================== AFN ========================*/
 
 
@@ -76,12 +74,11 @@ void AFN::lerAFN(){
 	ifstream arquivoDeEntrada;
 	while(enquantoEstiverLendoArquivo){
 		//string nomeArquivo;
-		cout << "Digite o nome do arquivo\nSem a extensao .afn (isto eh feito automaticamente): ";
+		cout << "Digite o nome do arquivo com a extensao \".afn\": ";
 		cin >> nomeDoArquivo;
-		nomeDoArquivo += ".afn";
 		arquivoDeEntrada.open(nomeDoArquivo.c_str());
 		if(!arquivoDeEntrada.is_open()){
-			cout << "Desculpe, mas nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
+			cout << "Desculpe, nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
 		} else {
 			enquantoEstiverLendoArquivo = false;
 		}
@@ -335,10 +332,10 @@ void AFN::gramaticaAFN(){
 		}
 	}
 
-	cout << "Automato Finito Nao-Deterministico:\n";
+	cout << "Automato Finito Não-Determinístico:\n";
 	for(int i = 0; i < (int)estados.size(); i++){
 		for(int j = 0; j < (int)alfabeto.size(); j++){
-			cout << "6(" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+			cout << "δ: (" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
 		} cout << endl;
 	}
 	for(int i = 0; i < 80; i++){
@@ -361,10 +358,10 @@ void AFN::gramaticaAFD(){
 		}
 	}
 
-	cout << "Automato Finito Deterministico:\n";
+	cout << "Automato Finito Determinístico:\n";
 	for(int i = 0; i < (int)novosEstados.size(); i++){
 		for(int j = 0; j < (int)alfabeto.size(); j++){
-			cout << "6(" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+			cout << "δ: (" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
 		} cout << endl;
 	}
 	for(int i = 0; i < 80; i++){

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <windows.h>
 #include "Automatos.hpp"
 
 using namespace std;

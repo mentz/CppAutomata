@@ -1,6 +1,6 @@
 # CppAutomata
 
-FILES=CppAutomata.cpp Class-Automato.cpp
+FILES=Automatos.cpp MainTeste.cpp
 OUT=CppAutomata
 CC=g++
 FLAGS=-Wall

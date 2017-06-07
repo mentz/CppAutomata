@@ -10,6 +10,8 @@
 
 using namespace std;
 
+/* ==================== AFD ==================== */
+
 class AFD{
 	private:
 		map<pair<string, char>, string> automatoConnection;
@@ -23,6 +25,8 @@ class AFD{
 		void AddFinalStates(const int n, ...);
 		void NewAlphabet(string alpha);
 };
+
+/* ==================== AFN ==================== */
 
 class AFN {
 private:
