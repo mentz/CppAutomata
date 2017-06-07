@@ -4,14 +4,14 @@
 #include <utility>
 #include <iostream>
 #include <string.h>
-#include "Automato.h"
+#include "Automatos.hpp"
 using namespace std;
 
-bool Automato::ReadEntry(string daVez, char * entry){
+bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
 	if(*entry != '\0'){
 		if(this->automatoConnection[par] != "") 
-			cout << "δ: " <<  daVez << " × " << *entry << " → " 
+			cout << "δ: (" <<  daVez << " × " << *entry << ") → " 
 		         <<  this->automatoConnection[par] << endl; 
 
 		else if(this->automatoConnection[par] == "")
@@ -24,14 +24,14 @@ bool Automato::ReadEntry(string daVez, char * entry){
 
 		return false;
 	}
-	return ReadEntry(this->automatoConnection[par], ++entry); //@.@
+	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
 
-void Automato::NewConnection(string qx, string qy, char alpha){
+void AFD::NewConnection(string qx, string qy, char alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
-void Automato::AddFinalStates(const int n, ...){
+void AFD::AddFinalStates(const int n, ...){
 	va_list args;
 	va_start(args, n);
 	for(int i = 0; i < n; i++)
@@ -39,7 +39,7 @@ void Automato::AddFinalStates(const int n, ...){
 	va_end(args);
 }
 
-void Automato::AddStates(const int n, ...){
+void AFD::AddStates(const int n, ...){
 	va_list args;
 	va_start(args, n);
 	for(int i = 0; i < n; i++)
@@ -47,6 +47,6 @@ void Automato::AddStates(const int n, ...){
 	va_end(args);
 }
 
-void Automato::NewAlphabet(string alpha){
+void AFD::NewAlphabet(string alpha){
 	this -> alphabet = alpha;
 }

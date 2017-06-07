@@ -4,10 +4,10 @@
 #include <utility>
 #include <iostream>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 using namespace std;
 
-class Automato{
+class AFD{
 	private:
 		map<pair<string, char>, string> automatoConnection;
 		vector<string> finalStates;

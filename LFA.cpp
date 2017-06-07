@@ -4,11 +4,11 @@
 #include <utility>
 #include <iostream>
 #include <string.h>
-#include "Automato.h"
+#include "Automatos.hpp"
 using namespace std;
 
 int main(){
-	Automato automato;
+	AFD automato;
 	
 	automato.AddStates(5, "q0", "q1", "q2", "q3", "qf");
 	automato.AddFinalStates(1, "qf");
@@ -19,4 +19,6 @@ int main(){
 		cout << "Fita de entrada aceita pelo automato\n";
 	else
 		cout << "Fita de entrada não aceita pelo automato\n"; 
+	
+	return 0;
 }	
