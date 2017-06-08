@@ -16,10 +16,12 @@ using namespace std;
 
 void help()
 {
-	printf("Utilitário CppAutomata.\nCopyright 2017"
+	string msg = "Utilitário CppAutomata.\nCopyright 2017"
 		" - Felipe Weiss, Leonardo Valério Anastácio, Lucas Litter Mentz."
-		"\nModo de uso: cppautomata [-r arquivo.afd]|[-c arquivo"
-		".afn]|[-m arquivo.afd]\n\n"
+		"\nAgradecimentos à professora Karina Girardi Roggia pela ideia"
+		"da criação deste software didático."
+		"\nModo de uso: \n\tcppautomata -r arquivo.afd\n\tcppautomata "
+		"-c arquivo.afn\n\tcppautomata -m arquivo.afd\n\n"
 	    "   -r   Abre o utilitário no modo de reconhecimento de\n"
 	    "        palavras se o arquivo.afd existe.\n\n"
 	    "   -c   Converte o autômato finito não-determinístico\n"
@@ -27,7 +29,9 @@ void help()
 	    "        equivalente com o menor número de estados.\n\n"
 	    "   -m   Faz a minimização do autômato finito\n"
 	    "        determinístico informado e salva em um arquivo\n"
-	    "        com prefixo \"min_\".\n\n");
+	    "        com prefixo \"min_\".\n\n";
+
+	cout << msg;
 }
 
 void leonardo(string file)

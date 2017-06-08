@@ -25,17 +25,17 @@ int main(int argc, char const *argv[]){
 			break;
 		case 1:
 			leonardo(filePath);
-			cout << "\n\nPressione 'Enter' para sair." << endl;
+			cout << "-------\nPressione 'Enter' para sair." << endl;
 			getchar();
 			break;
 		case 2:
 			weiss(filePath);
-			cout << "\n\nPressione 'Enter' para sair." << endl;
+			cout << "-------\nPressione 'Enter' para sair." << endl;
 			getchar();
 			break;
 		case 3:
 			mentz(filePath);
-			cout << "\n\nPressione 'Enter' para sair." << endl;
+			cout << "-------\nPressione 'Enter' para sair." << endl;
 			getchar();
 			break;
 		default:
