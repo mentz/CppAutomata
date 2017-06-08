@@ -1,9 +1,13 @@
 # CppAutomata
 
-FILES=Automatos.cpp MainTeste.cpp
-OUT=CppAutomata
-CC=g++
-FLAGS=-Wall
+FILES = Automatos.cpp Main.cpp
+OUT = a.out
+CC = g++
+WARN = -Wall
+FLAGS = -std=c++11
 
-all :
-    $(CC) $(FLAGS) -o $(OUT) $(FILES)
+default: $(OUT)
+a.out: $(FILES)
+	$(CC) $(WARN) -o $(OUT) $(FILES) $(FLAGS)
+
+.PHONY: a.out

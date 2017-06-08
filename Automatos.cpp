@@ -27,7 +27,7 @@ void help()
 	    "        equivalente com o menor número de estados.\n\n"
 	    "   -m   Faz a minimização do autômato finito\n"
 	    "        determinístico informado e salva em um arquivo\n"
-	    "        com prefixo \"min_\".\n");
+	    "        com prefixo \"min_\".\n\n");
 }
 
 void leonardo(string file)
