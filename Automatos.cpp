@@ -12,6 +12,57 @@
 
 using namespace std;
 
+/* =============== Main functions ================== */
+
+void help()
+{
+	printf("Utilitário CppAutomata.\nCopyright 2017"
+		" - Felipe Weiss, Leonardo Valério Anastácio, Lucas Litter Mentz."
+		"\nModo de uso: cppautomata [-r arquivo.afd]|[-c arquivo"
+		".afn]|[-m arquivo.afd]\n\n"
+	    "   -r   Abre o utilitário no modo de reconhecimento de\n"
+	    "        palavras se o arquivo.afd existe.\n\n"
+	    "   -c   Converte o autômato finito não-determinístico\n"
+	    "        informado em um autômato finito determinístico\n"
+	    "        equivalente com o menor número de estados.\n\n"
+	    "   -m   Faz a minimização do autômato finito\n"
+	    "        determinístico informado e salva em um arquivo\n"
+	    "        com prefixo \"min_\".\n");
+}
+
+void leonardo(string file)
+{
+	AFD automato;
+	
+	automato.AddStates(5, "q0", "q1", "q2", "q3", "qf");
+	automato.AddFinalStates(1, "qf");
+	automato.NewConnection("q0", "q1", 'a');
+	automato.NewConnection("q1", "q2", 'b');
+	automato.NewConnection("q2", "qf", 'a');
+	
+	if(automato.ReadEntry("q0", (char *)"aba"))
+		cout << "Fita de entrada aceita pelo automato\n";
+	else
+		cout << "Fita de entrada não aceita pelo automato\n"; 
+}
+
+void weiss(string file)
+{
+	AFN *testa = new AFN(file);
+	
+	testa -> lerAFN();
+	testa -> gramaticaAFN();
+	testa -> converterAFN_AFD();
+	testa -> gramaticaAFD();
+	testa -> geraAFD();
+}
+
+void mentz(string file)
+{
+	// todo
+}
+
+
 /*====================== AFN ========================*/
 
 
@@ -64,29 +115,25 @@ void AFD::NewAlphabet(string alpha){
 /*====================== AFN ========================*/
 
 
-AFN::AFN(){
+AFN::AFN(string nomeDoArquivo){
 	this -> numeroEstadosNormais = 0;
 	this -> numeroEstadosFinais = 0;
+	this -> nomeDoArquivo = nomeDoArquivo;
 }
 
 void AFN::lerAFN(){
-	bool enquantoEstiverLendoArquivo = true;
 	ifstream arquivoDeEntrada;
-	while(enquantoEstiverLendoArquivo){
-		//string nomeArquivo;
-		cout << "Digite o nome do arquivo com a extensao \".afn\": ";
-		cin >> nomeDoArquivo;
-		arquivoDeEntrada.open(nomeDoArquivo.c_str());
-		if(!arquivoDeEntrada.is_open()){
-			cout << "Desculpe, nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
-		} else {
-			enquantoEstiverLendoArquivo = false;
-		}
-		for(int i = 0; i < 80; i++){
-			cout << "#";
-		} cout << endl;
+	
+	arquivoDeEntrada.open(nomeDoArquivo.c_str());
+	if(!arquivoDeEntrada.is_open()){
+		cout << "Desculpe, nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
+		return;
 	}
 
+	for(int i = 0; i < 80; i++){
+		cout << "#";
+	} cout << endl;
+	
 	string estadoInicial;
 	getline(arquivoDeEntrada, estadoInicial);
 	this -> estadoInicial = estadoInicial;

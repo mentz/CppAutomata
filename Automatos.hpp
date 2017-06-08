@@ -10,6 +10,21 @@
 
 using namespace std;
 
+/* ============== Main Functions =============== */
+
+// print useful information about the program usage
+void help();
+
+// Aplicar o autômato no reconhecimento de palavras
+void leonardo(string file);
+
+// Converter um AFN em AFD sem estados inúteis e gravar em arquivo
+void weiss(string file);
+
+// Minimizar um AFD e gravar em arquivo
+void mentz(string file);
+
+
 /* ==================== AFD ==================== */
 
 class AFD{
@@ -52,7 +67,7 @@ private:
 	int numeroEstadosFinais;
 
 public:
-	AFN();
+	AFN(string nomeDoArquivo);
 	void lerAFN();
 	bool ordena(const string &a, const string &b);
 	string gerarNovoEstado(bool ehEstadoFinal);
