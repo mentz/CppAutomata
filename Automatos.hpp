@@ -39,6 +39,10 @@ class AFD{
 		void AddStates(const int n, ...);
 		void AddFinalStates(const int n, ...);
 		void NewAlphabet(string alpha);
+		void loadFromFile(string file);
+		void fazerFuncaoTotal();
+		void removerEstadosInalcancaveis();
+		void saveToFile(string file);
 };
 
 /* ==================== AFN ==================== */

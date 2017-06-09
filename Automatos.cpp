@@ -63,11 +63,18 @@ void weiss(string file)
 
 void mentz(string file)
 {
-	// todo
+	AFD old;
+
+//	old.loadFromFile(file);	// Leonardo vai fazer essa função
+	old.fazerFuncaoTotal();
+	old.removerEstadosInalcancaveis();
+	string outFile = file;
+	outFile.insert(0, "min_");
+	old.saveToFile(outFile);
 }
 
 
-/*====================== AFN ========================*/
+/*====================== AFD ========================*/
 
 
 bool AFD::ReadEntry(string daVez, char * entry){
@@ -114,6 +121,20 @@ void AFD::NewAlphabet(string alpha){
 	this -> alphabet = alpha;
 }
 
+void fazerFuncaoTotal()
+{
+
+}
+
+void removerEstadosInalcancaveis()
+{
+
+}
+
+void saveToFile(string file)
+{
+
+}
 
 
 /*====================== AFN ========================*/
