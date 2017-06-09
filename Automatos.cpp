@@ -19,7 +19,7 @@ void help()
 	string msg = "Utilitário CppAutomata.\nCopyright 2017"
 		" - Felipe Weiss, Leonardo Valério Anastácio, Lucas Litter Mentz."
 		"\nAgradecimentos à professora Karina Girardi Roggia pela ideia"
-		"da criação deste software didático."
+		" da criação deste software didático."
 		"\nModo de uso: \n\tcppautomata -r arquivo.afd\n\tcppautomata "
 		"-c arquivo.afn\n\tcppautomata -m arquivo.afd\n\n"
 	    "   -r   Abre o utilitário no modo de reconhecimento de\n"
@@ -36,15 +36,51 @@ void help()
 
 void leonardo(string file)
 {
-	AFD automato;
+
+	std::ifstream arquivoAFD;
+	arquivoAFD.open(file); //Abre o arquivo que contém o AFD
+
+	string estadoInicial;
+	arquivoAFD >> estadoInicial; //Leitura do estado inicial
+	automato.addStates(1, estadoInicial);
+
+	int numeroEstados;
+	arquivoAFD >> numeroEstados;
+	for(int i = 0; i < numeroEstados; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		automato.addStates(1, tmpEstado);
+	}  //Leitura dos estados
+
+	int numeroEstadosFinais;
+	arquivoAFD >> numeroEstadosFinais;
+	for(int i = 0; i < numeroEstadosFinais; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		automato.AddFinalStates(1, tmpEstado);
+	} //Leitura dos estados finais
+
+	int numeroElementos;
+	arquivoAFD >> numeroElementos;
+	for(int i = 0; i < numeroElementos; i++){
+		string tmpElemento;
+		arquivoAFD >> tmpElemento;
+		automato.NewAlphabetSymbol(1, tmpElemento);
+	} //Leitura dos simbolos do alfabeto
+
+	int numeroConexoes;
+	arquivoAFD >> numeroConexoes;
+	for(int i = 0; i < numeroConexoes; i++){
+		string tmpEstado1, simboloConexao, tmpEstado2;
+		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpestado2;
+		automato.NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
+	} //Leitura das conexões do automato
 	
-	automato.AddStates(5, "q0", "q1", "q2", "q3", "qf");
-	automato.AddFinalStates(1, "qf");
-	automato.NewConnection("q0", "q1", 'a');
-	automato.NewConnection("q1", "q2", 'b');
-	automato.NewConnection("q2", "qf", 'a');
-	
-	if(automato.ReadEntry("q0", (char *)"aba"))
+	string fitaEntrada;
+	cout << "Digite fita de entrata para testar no automato\n";
+	cin >> fitaEntrada;
+
+	if(automato.ReadEntry(estadoInicial, fitaEntrada)
 		cout << "Fita de entrada aceita pelo automato\n";
 	else
 		cout << "Fita de entrada não aceita pelo automato\n"; 
@@ -63,19 +99,13 @@ void weiss(string file)
 
 void mentz(string file)
 {
-	AFD old;
-
-//	old.loadFromFile(file);	// Leonardo vai fazer essa função
-	old.fazerFuncaoTotal();
-	old.removerEstadosInalcancaveis();
-	string outFile = file;
-	outFile.insert(0, "min_");
-	old.saveToFile(outFile);
+	// todo
+	printf("Erro. Não implementado.\n");
 }
 
 
-/*====================== AFD ========================*/
 
+/* ======================= AFD ======================= */
 
 bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
@@ -97,7 +127,7 @@ bool AFD::ReadEntry(string daVez, char * entry){
 	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
 
-void AFD::NewConnection(string qx, string qy, char alpha){
+void AFD::NewConnection(string qx, string qy, string alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
@@ -117,27 +147,23 @@ void AFD::AddStates(const int n, ...){
 	va_end(args);
 }
 
-void AFD::NewAlphabet(string alpha){
-	this -> alphabet = alpha;
+void AFD::NewAlphabetSymbol(string symbol){
+	this -> alphabet.push_back(symbol);
 }
 
-void fazerFuncaoTotal()
+
+int VerificarFuncProgTotal()
 {
-
-}
-
-void removerEstadosInalcancaveis()
-{
-
-}
-
-void saveToFile(string file)
-{
-
+	for (int i = 0; i < States.size(); i++)
+	{
+		if (automatoConnection.count(States[i]) < )
+	}
 }
 
 
-/*====================== AFN ========================*/
+int VerificarEstadosInuteis();
+
+/* ======================= AFN ======================= */
 
 
 AFN::AFN(string nomeDoArquivo){
@@ -351,7 +377,8 @@ void AFN::converterAFN_AFD(){
 
 void AFN::geraAFD(){
 	ofstream arquivoDeSaida;
-	nomeDoArquivo.insert(nomeDoArquivo.size() - 4, "_Convertido");
+	nomeDoArquivo.insert(nomeDoArquivo.size() - 4, "_toAFD");
+	nomeDoArquivo.at(nomeDoArquivo.size()-1) = 'd';
 	arquivoDeSaida.open(nomeDoArquivo.c_str());
 
 	if(!arquivoDeSaida.is_open()){
@@ -441,3 +468,5 @@ void AFN::gramaticaAFD(){
 	} cout << endl;
 
 }
+
+
