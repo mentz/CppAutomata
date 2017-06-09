@@ -25,27 +25,23 @@ void weiss(string file);
 void mentz(string file);
 
 
-/* ======================= AFd ======================= */
+/* ==================== AFD ==================== */
 
 class AFD{
 	private:
 		map<pair<string, char>, string> automatoConnection;
 		vector<string> finalStates;
 		vector<string> States;
-		vector<string> alphabet;   
+		string alphabet;   
 	public:
 		bool ReadEntry(string daVez, char * entry);
-		void NewConnection(string qx, string qy, string alpha);
+		void NewConnection(string qx, string qy, char alpha);
 		void AddStates(const int n, ...);
 		void AddFinalStates(const int n, ...);
-		void NewAlphabetSymbol(string alpha);
-		int VerificarFuncProgTotal();
-		int VerificarEstadosInuteis();
+		void NewAlphabet(string alpha);
 };
 
-
-
-/* ======================= AFN ======================= */
+/* ==================== AFN ==================== */
 
 class AFN {
 private:

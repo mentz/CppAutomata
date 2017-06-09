@@ -19,7 +19,7 @@ void help()
 	string msg = "Utilitário CppAutomata.\nCopyright 2017"
 		" - Felipe Weiss, Leonardo Valério Anastácio, Lucas Litter Mentz."
 		"\nAgradecimentos à professora Karina Girardi Roggia pela ideia"
-		" da criação deste software didático."
+		"da criação deste software didático."
 		"\nModo de uso: \n\tcppautomata -r arquivo.afd\n\tcppautomata "
 		"-c arquivo.afn\n\tcppautomata -m arquivo.afd\n\n"
 	    "   -r   Abre o utilitário no modo de reconhecimento de\n"
@@ -40,9 +40,9 @@ void leonardo(string file)
 	
 	automato.AddStates(5, "q0", "q1", "q2", "q3", "qf");
 	automato.AddFinalStates(1, "qf");
-	automato.NewConnection("q0", "q1", "a");
-	automato.NewConnection("q1", "q2", "b");
-	automato.NewConnection("q2", "qf", "a");
+	automato.NewConnection("q0", "q1", 'a');
+	automato.NewConnection("q1", "q2", 'b');
+	automato.NewConnection("q2", "qf", 'a');
 	
 	if(automato.ReadEntry("q0", (char *)"aba"))
 		cout << "Fita de entrada aceita pelo automato\n";
@@ -64,12 +64,11 @@ void weiss(string file)
 void mentz(string file)
 {
 	// todo
-	printf("Erro. Não implementado.\n");
 }
 
 
+/*====================== AFN ========================*/
 
-/* ======================= AFD ======================= */
 
 bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
@@ -91,7 +90,7 @@ bool AFD::ReadEntry(string daVez, char * entry){
 	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
 
-void AFD::NewConnection(string qx, string qy, string alpha){
+void AFD::NewConnection(string qx, string qy, char alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
@@ -111,23 +110,13 @@ void AFD::AddStates(const int n, ...){
 	va_end(args);
 }
 
-void AFD::NewAlphabetSymbol(string symbol){
-	this -> alphabet.push_back(symbol);
+void AFD::NewAlphabet(string alpha){
+	this -> alphabet = alpha;
 }
 
 
-int VerificarFuncProgTotal()
-{
-	for (int i = 0; i < States.size(); i++)
-	{
-		if (automatoConnection.count(States[i]) < )
-	}
-}
 
-
-int VerificarEstadosInuteis();
-
-/* ======================= AFN ======================= */
+/*====================== AFN ========================*/
 
 
 AFN::AFN(string nomeDoArquivo){
@@ -341,8 +330,7 @@ void AFN::converterAFN_AFD(){
 
 void AFN::geraAFD(){
 	ofstream arquivoDeSaida;
-	nomeDoArquivo.insert(nomeDoArquivo.size() - 4, "_toAFD");
-	nomeDoArquivo.at(nomeDoArquivo.size()-1) = 'd';
+	nomeDoArquivo.insert(nomeDoArquivo.size() - 4, "_Convertido");
 	arquivoDeSaida.open(nomeDoArquivo.c_str());
 
 	if(!arquivoDeSaida.is_open()){
@@ -432,5 +420,3 @@ void AFN::gramaticaAFD(){
 	} cout << endl;
 
 }
-
-
