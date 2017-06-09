@@ -65,7 +65,6 @@ void leonardo(string file)
 	for(int i = 0; i < numeroElementos; i++){
 		string tmpElemento;
 		arquivoAFD >> tmpElemento;
-		automato.NewAlphabetSymbol(1, tmpElemento);
 	} //Leitura dos simbolos do alfabeto
 
 	int numeroConexoes;
