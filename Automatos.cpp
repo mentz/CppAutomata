@@ -36,50 +36,14 @@ void help()
 
 void leonardo(string file)
 {
+	AFD automatoTeste; 
+	automatoTeste.lerArquivoAFD(file);
 
-	std::ifstream arquivoAFD;
-	arquivoAFD.open(file); //Abre o arquivo que contém o AFD
-
-	string estadoInicial;
-	arquivoAFD >> estadoInicial; //Leitura do estado inicial
-	automato.addStates(1, estadoInicial);
-
-	int numeroEstados;
-	arquivoAFD >> numeroEstados;
-	for(int i = 0; i < numeroEstados; i++){
-		string tmpEstado;
-		arquivoAFD >> tmpEstado;
-		automato.addStates(1, tmpEstado);
-	}  //Leitura dos estados
-
-	int numeroEstadosFinais;
-	arquivoAFD >> numeroEstadosFinais;
-	for(int i = 0; i < numeroEstadosFinais; i++){
-		string tmpEstado;
-		arquivoAFD >> tmpEstado;
-		automato.AddFinalStates(1, tmpEstado);
-	} //Leitura dos estados finais
-
-	int numeroElementos;
-	arquivoAFD >> numeroElementos;
-	for(int i = 0; i < numeroElementos; i++){
-		string tmpElemento;
-		arquivoAFD >> tmpElemento;
-	} //Leitura dos simbolos do alfabeto
-
-	int numeroConexoes;
-	arquivoAFD >> numeroConexoes;
-	for(int i = 0; i < numeroConexoes; i++){
-		string tmpEstado1, simboloConexao, tmpEstado2;
-		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpestado2;
-		automato.NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
-	} //Leitura das conexões do automato
-	
 	string fitaEntrada;
 	cout << "Digite fita de entrata para testar no automato\n";
 	cin >> fitaEntrada;
 
-	if(automato.ReadEntry(estadoInicial, fitaEntrada)
+	if(automato.ReadEntry(estadoInicial, fitaEntrada.begin())
 		cout << "Fita de entrada aceita pelo automato\n";
 	else
 		cout << "Fita de entrada não aceita pelo automato\n"; 
@@ -106,7 +70,47 @@ void mentz(string file)
 
 /* ======================= AFD ======================= */
 
-bool AFD::ReadEntry(string daVez, char * entry){
+void AFD::lerArquivoAFD(string diretorio){
+	string estadoInicial;
+	arquivoAFD >> estadoInicial; //Leitura do estado inicial
+	this->automato.addStates(1, estadoInicial);
+
+	int numeroEstados;
+	arquivoAFD >> numeroEstados;
+	for(int i = 0; i < numeroEstados; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		this->automato.addStates(1, tmpEstado);
+	}  //Leitura dos estados
+
+	int numeroEstadosFinais;
+	arquivoAFD >> numeroEstadosFinais;
+	for(int i = 0; i < numeroEstadosFinais; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		this->automato.AddFinalStates(1, tmpEstado);
+	} //Leitura dos estados finais
+
+	int numeroElementos;
+	arquivoAFD >> numeroElementos;
+	string Alfabeto;
+	for(int i = 0; i < numeroElementos; i++){
+		string tmpElemento;
+		arquivoAFD >> tmpElemento;
+		Alfabeto += tmpElemento;
+	} //Leitura dos simbolos do alfabeto
+	this->automato.NewAlphabet(Alfabeto);
+
+	int numeroConexoes;
+	arquivoAFD >> numeroConexoes;
+	for(int i = 0; i < numeroConexoes; i++){
+		string tmpEstado1, simboloConexao, tmpEstado2;
+		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpestado2;
+		this->automato.NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
+	}
+}
+
+bool AFD::ReadEntry(string daVez, basic_string<char>::iterator entry){
 	pair<string, char> par = {daVez, *entry};
 	if(*entry != '\0'){
 		if(this->automatoConnection[par] != "") 
