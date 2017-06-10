@@ -19,7 +19,7 @@ void help()
 	string msg = "Utilitário CppAutomata.\nCopyright 2017"
 		" - Felipe Weiss, Leonardo Valério Anastácio, Lucas Litter Mentz."
 		"\nAgradecimentos à professora Karina Girardi Roggia pela ideia"
-		"da criação deste software didático."
+		" da criação deste software didático."
 		"\nModo de uso: \n\tcppautomata -r arquivo.afd\n\tcppautomata "
 		"-c arquivo.afn\n\tcppautomata -m arquivo.afd\n\n"
 	    "   -r   Abre o utilitário no modo de reconhecimento de\n"
@@ -36,18 +36,18 @@ void help()
 
 void leonardo(string file)
 {
-	AFD automato;
-	
-	automato.AddStates(5, "q0", "q1", "q2", "q3", "qf");
-	automato.AddFinalStates(1, "qf");
-	automato.NewConnection("q0", "q1", 'a');
-	automato.NewConnection("q1", "q2", 'b');
-	automato.NewConnection("q2", "qf", 'a');
-	
-	if(automato.ReadEntry("q0", (char *)"aba"))
-		cout << "Fita de entrada aceita pelo automato\n";
+	AFD automato; 
+	if (!automato.lerArquivoAFD(file))
+		return;
+
+	char fitaEntrada[1000];
+	cout << "Escreva a palavra para testar no autômato:\n";
+	scanf("%s", fitaEntrada);
+
+	if(automato.ReadEntry(automato.estadoInicial, fitaEntrada))
+		cout << "Palavra aceita pelo autômato.\n";
 	else
-		cout << "Fita de entrada não aceita pelo automato\n"; 
+		cout << "Palavra não aceita pelo autômato.\n"; 
 }
 
 void weiss(string file)
@@ -57,36 +57,98 @@ void weiss(string file)
 	testa -> lerAFN();
 	testa -> gramaticaAFN();
 	testa -> converterAFN_AFD();
-	testa -> geraAFD();
 	testa -> gramaticaAFD();
-	
+	testa -> geraAFD();
 }
 
 void mentz(string file)
 {
-	// todo
+	AFD automato; 
+	if (!automato.lerArquivoAFD(file))
+		return;
+
+	automato.FazerFuncTotal();
+	automato.RemoverEstadosInalcancaveis();
 }
 
 
-/*====================== AFN ========================*/
 
+/* ======================= AFD ======================= */
+
+int AFD::lerArquivoAFD(string diretorio){
+	ifstream arquivoAFD;
+	arquivoAFD.open(diretorio);
+
+	if(!arquivoAFD.is_open()){
+		cout << "Desculpe, nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
+		return 0;
+	}
+
+	string estadoInicial;
+	arquivoAFD >> estadoInicial; //Leitura do estado inicial
+	this->setEstadoInicial(estadoInicial);
+
+	int numeroEstados;
+	arquivoAFD >> numeroEstados;
+	for(int i = 0; i < numeroEstados; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		this->AddStates(tmpEstado);
+	}  //Leitura dos estados
+
+	int numeroEstadosFinais;
+	arquivoAFD >> numeroEstadosFinais;
+	for(int i = 0; i < numeroEstadosFinais; i++){
+		string tmpEstado;
+		arquivoAFD >> tmpEstado;
+		this->AddFinalStates(tmpEstado);
+	} //Leitura dos estados finais
+
+	int numeroElementos;
+	arquivoAFD >> numeroElementos;
+	string Alfabeto;
+	for(int i = 0; i < numeroElementos; i++){
+		char tmpElemento;
+		arquivoAFD >> tmpElemento;
+		Alfabeto += tmpElemento;
+	} //Leitura dos simbolos do alfabeto
+	this->NewAlphabet(Alfabeto);
+
+	int numeroConexoes;
+	arquivoAFD >> numeroConexoes;
+	for(int i = 0; i < numeroConexoes; i++){
+		string tmpEstado1, tmpEstado2;
+		char simboloConexao;
+		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpEstado2;
+		this->NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
+	}
+
+	return 1;
+}
 
 bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
-	if(*entry != '\0'){
-		if(this->automatoConnection[par] != "") 
-			cout << "δ: (" <<  daVez << " × " << *entry << ") → " 
-		         <<  this->automatoConnection[par] << endl; 
 
-		else if(this->automatoConnection[par] == "")
-			return false; 
-	}else{
+	if(*entry != '\0')
+	{
+		if(this->automatoConnection[par] != "") 
+			cout << "δ: (" <<  daVez << ", " << *entry << ") →  " 
+		         << this->automatoConnection[par] << endl; 
+
+		else if(this->automatoConnection.count(par) < 1)
+			return false;
+	}
+	else
+	{
+		bool finalState = false;
 		for(size_t i = 0; i < this->finalStates.size(); i++){
-			if(daVez == this->finalStates[i])
-				return true;
+			if(this->finalStates[i].compare(daVez) == 0)
+				finalState = true;
 		}
 
-		return false;
+		cout << "\nO estado atual (" << daVez << ") " << (finalState ? "é ":"não é ") << "final.\n";
+
+		return finalState;
 	}
 	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
@@ -95,29 +157,108 @@ void AFD::NewConnection(string qx, string qy, char alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
-void AFD::AddFinalStates(const int n, ...){
-	va_list args;
-	va_start(args, n);
-	for(int i = 0; i < n; i++)
-		this->finalStates.push_back(va_arg(args, char*));
-	va_end(args);
+void AFD::NewAlphabet(string alpha)
+{
+	this->alphabet = alpha;
 }
 
-void AFD::AddStates(const int n, ...){
-	va_list args;
-	va_start(args, n);
-	for(int i = 0; i < n; i++)
-		this->States.push_back(va_arg(args, char*));
-	va_end(args);
+void AFD::AddFinalStates(string state){
+	this->finalStates.push_back(state);
 }
 
-void AFD::NewAlphabet(string alpha){
-	this -> alphabet = alpha;
+void AFD::AddStates(string state){
+	this->States.push_back(state);
+}
+
+void AFD::setEstadoInicial(string state)
+{
+	this->estadoInicial = state;
+}
+
+int AFD::FazerFuncTotal()
+{
+	int novoEstado = false;
+	int sts = this->States.size();
+	int als = this->alphabet.size();
+	for (int i = 0; i < sts; i++)
+	{
+		for (int j = 0; j < als; j++)
+		{
+			if ( !this->automatoConnection.count({States[i], alphabet[j]}) )
+			{
+				if (!novoEstado)
+				{
+					novoEstado = true;
+					cout << "i, j, " << i << ", " << j << "\tHurray!\n";
+					AddStates("qBlackHole");
+				}
+				this->NewConnection(States[i], "qBlackHole", alphabet[j]);
+			}
+		}
+	}
+
+	if (novoEstado)
+	{
+		for (int i = 0; i < als; i++)
+			this->NewConnection("qBlackHole", "qBlackHole", alphabet[i]);
+	}
+
+/*	// Existe para verificar se faz o correto ao totalizar a função programa.
+	for (int i = 0; i < (int)this->States.size(); i++)
+	{
+		for (int j = 0; j < als; j++)
+			cout << "δ: (" <<  States[i] << ", " << alphabet[j] << ") →  " 
+		         << this->automatoConnection[{States[i], alphabet[j]}] << endl;
+	}
+*/
+
+	return novoEstado;
 }
 
 
+void AFD::RemoverEstadosInalcancaveis()
+{
+	Fecho(this->estadoInicial);
+	for (int i = States.size() - 1; i >= 0; i--)
+	{
+		cout << States[i] << " - é " << (estadosAlcancaveis.count(States[i]) ? "" : "in") << "alcançável\n";
+		if (!estadosAlcancaveis.count(States[i]))
+			States.erase(States.begin() + i);
+	}
+}
 
-/*====================== AFN ========================*/
+void AFD::Fecho(string daVez)
+{
+	estadosAlcancaveis[daVez] = true;
+	int als = this->alphabet.size();
+	string next;
+	for (int i = 0; i < als; i++)
+	{
+		next = this->automatoConnection[{daVez, alphabet[i]}];
+		cout << "(" << daVez << ", " << alphabet[i] << ") -> " << next << endl;
+		if (!estadosAlcancaveis[next])
+			Fecho(this->automatoConnection[{daVez, alphabet[i]}]);
+	}
+}
+
+void AFD::saveToFile(string path)
+{
+	ofstream fout;
+	string npath = path; npath.insert(0, "min_");
+	fout.open(npath);
+	fout << this->estadoInicial << endl << this->States.size();
+	for (int i = 0; i < this->States.size(); i++)
+		fout << " " << this->States[i];
+	fout << endl << this->finalStates.size();
+	for (int i = 0; i < this->finalStates.size(); i++)
+		fout << " " << this->finalStates[i];
+	fout << endl << this->alphabet.size();
+	for (int i = 0; i < this->alphabet.size(); i++)
+		fout << " " << alphabet[i];
+	fout << endl;
+}
+
+/* ======================= AFN ======================= */
 
 
 AFN::AFN(string nomeDoArquivo){
@@ -227,7 +368,7 @@ bool AFN::estadoEhFinal(vector<string> &estadosFinais, vector<string> &simbolos)
 }
 
 void AFN::removeDoAFD(string estadoQueDeveSerRemovido){
-	map<pair<string, char>, string>::iterator it = this -> AFD.begin();
+	map<pair<string, char>, string>::iterator it = AFD.begin();
 
 	for(; it != this -> AFD.end(); it++){
 		if(it -> first.first == estadoQueDeveSerRemovido or it -> second == estadoQueDeveSerRemovido){
@@ -319,7 +460,6 @@ void AFN::converterAFN_AFD(){
 		}
 	}
 
-	//Verificando se não chega em estados inúteis -> Estado que não chega em estado final
 	for(int i = 0; i < (int)this -> novosEstados.size(); i++){
 		map<string, bool> estadosVisitados;
 		if(!this -> verificaSeChegaEmEstadoFinal(this -> novosEstados[i], estadosVisitados)){
@@ -328,22 +468,13 @@ void AFN::converterAFN_AFD(){
 			i--;
 		}
 	}
-
-	//Removendo as transições vazias
-	map<pair<string, char>, string>::iterator it = AFD.begin();
-	for(; it != AFD.end(); it++){
-		if(it -> second.size() == 0){
-			this -> AFD.erase(it);
-			cout << "oi" << endl;
-		}
-	}
 }
 
 void AFN::geraAFD(){
 	ofstream arquivoDeSaida;
-	string aux = "AFN_Convertido.afd";
-
-	arquivoDeSaida.open(aux.c_str());
+	nomeDoArquivo.insert(nomeDoArquivo.size() - 4, "_toAFD");
+	nomeDoArquivo.at(nomeDoArquivo.size()-1) = 'd';
+	arquivoDeSaida.open(nomeDoArquivo.c_str());
 
 	if(!arquivoDeSaida.is_open()){
 		cout << "Houve um erro ao gerar o arquivo de saida!" << endl;
@@ -397,16 +528,9 @@ void AFN::gramaticaAFN(){
 
 	cout << "Automato Finito Não-Determinístico:\n";
 	for(int i = 0; i < (int)estados.size(); i++){
-		bool pulaLinha = false;
 		for(int j = 0; j < (int)alfabeto.size(); j++){
-			if(gramatica[i][j] != "{}"){
-				pulaLinha = true;
-				cout << "δ: (" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
-			}
-		} 
-		if(pulaLinha){
-			cout << endl;
-		}
+			cout << "δ: (" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+		} cout << endl;
 	}
 	for(int i = 0; i < 80; i++){
 		cout << "#";
@@ -430,19 +554,14 @@ void AFN::gramaticaAFD(){
 
 	cout << "Automato Finito Determinístico:\n";
 	for(int i = 0; i < (int)novosEstados.size(); i++){
-		bool pulaLinha = false;
 		for(int j = 0; j < (int)alfabeto.size(); j++){
-			if(gramatica[i][j] != "{}"){
-				pulaLinha = true;
-				cout << "δ: (" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
-			}
-		}
-		if(pulaLinha){
-			cout << endl;
-		}
+			cout << "δ: (" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+		} cout << endl;
 	}
 	for(int i = 0; i < 80; i++){
 		cout << "#";
 	} cout << endl;
 
 }
+
+
