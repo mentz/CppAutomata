@@ -36,14 +36,15 @@ void help()
 
 void leonardo(string file)
 {
-	AFD automatoTeste; 
-	automatoTeste.lerArquivoAFD(file);
+	AFD automato; 
+	if (!automato.lerArquivoAFD(file))
+		return;
 
-	string fitaEntrada;
+	char fitaEntrada[1000];
 	cout << "Digite fita de entrata para testar no automato\n";
-	cin >> fitaEntrada;
+	scanf("%s", fitaEntrada);
 
-	if(automato.ReadEntry(estadoInicial, fitaEntrada.begin())
+	if(automato.ReadEntry(automato.estadoInicial, fitaEntrada))
 		cout << "Fita de entrada aceita pelo automato\n";
 	else
 		cout << "Fita de entrada não aceita pelo automato\n"; 
@@ -70,17 +71,25 @@ void mentz(string file)
 
 /* ======================= AFD ======================= */
 
-void AFD::lerArquivoAFD(string diretorio){
+int AFD::lerArquivoAFD(string diretorio){
+	ifstream arquivoAFD;
+	arquivoAFD.open(diretorio);
+
+	if(!arquivoAFD.is_open()){
+		cout << "Desculpe, nao foi possivel abrir o arquivo.\nVerifique se o nome do arquivo foi digitado corretamente.\n";
+		return 0;
+	}
+
 	string estadoInicial;
 	arquivoAFD >> estadoInicial; //Leitura do estado inicial
-	this->automato.addStates(1, estadoInicial);
+	this->setEstadoInicial(estadoInicial);
 
 	int numeroEstados;
 	arquivoAFD >> numeroEstados;
 	for(int i = 0; i < numeroEstados; i++){
 		string tmpEstado;
 		arquivoAFD >> tmpEstado;
-		this->automato.addStates(1, tmpEstado);
+		this->AddStates(tmpEstado);
 	}  //Leitura dos estados
 
 	int numeroEstadosFinais;
@@ -88,7 +97,7 @@ void AFD::lerArquivoAFD(string diretorio){
 	for(int i = 0; i < numeroEstadosFinais; i++){
 		string tmpEstado;
 		arquivoAFD >> tmpEstado;
-		this->automato.AddFinalStates(1, tmpEstado);
+		this->AddFinalStates(1, tmpEstado);
 	} //Leitura dos estados finais
 
 	int numeroElementos;
@@ -99,18 +108,21 @@ void AFD::lerArquivoAFD(string diretorio){
 		arquivoAFD >> tmpElemento;
 		Alfabeto += tmpElemento;
 	} //Leitura dos simbolos do alfabeto
-	this->automato.NewAlphabet(Alfabeto);
+	this->NewAlphabet(Alfabeto);
 
 	int numeroConexoes;
 	arquivoAFD >> numeroConexoes;
 	for(int i = 0; i < numeroConexoes; i++){
-		string tmpEstado1, simboloConexao, tmpEstado2;
-		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpestado2;
-		this->automato.NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
+		string tmpEstado1, tmpEstado2;
+		char simboloConexao;
+		arquivoAFD >> tmpEstado1 >> simboloConexao >> tmpEstado2;
+		this->NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
 	}
+
+	return 1;
 }
 
-bool AFD::ReadEntry(string daVez, basic_string<char>::iterator entry){
+bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
 	if(*entry != '\0'){
 		if(this->automatoConnection[par] != "") 
@@ -130,7 +142,7 @@ bool AFD::ReadEntry(string daVez, basic_string<char>::iterator entry){
 	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
 
-void AFD::NewConnection(string qx, string qy, string alpha){
+void AFD::NewConnection(string qx, string qy, char alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
@@ -142,12 +154,13 @@ void AFD::AddFinalStates(const int n, ...){
 	va_end(args);
 }
 
-void AFD::AddStates(const int n, ...){
-	va_list args;
-	va_start(args, n);
-	for(int i = 0; i < n; i++)
-		this->States.push_back(va_arg(args, char*));
-	va_end(args);
+void AFD::AddStates(string state){
+	this->States.push_back(state);
+}
+
+void AFD::setEstadoInicial(string state)
+{
+	this->estadoInicial = state;
 }
 
 void AFD::NewAlphabetSymbol(string symbol){

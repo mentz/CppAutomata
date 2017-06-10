@@ -32,14 +32,16 @@ class AFD{
 		map<pair<string, char>, string> automatoConnection;
 		vector<string> finalStates;
 		vector<string> States;
-		string alphabet;   
+		string alphabet;
 	public:
+		string estadoInicial;
 		bool ReadEntry(string daVez, char * entry);
 		void NewConnection(string qx, string qy, char alpha);
-		void AddStates(const int n, ...);
+		void AddStates(string state);
+		void setEstadoInicial(string state);
 		void AddFinalStates(const int n, ...);
 		void NewAlphabet(string alpha);
-		void loadFromFile(string file);
+		int lerArquivoAFD(string diretorio);
 		void fazerFuncaoTotal();
 		void removerEstadosInalcancaveis();
 		void saveToFile(string file);
