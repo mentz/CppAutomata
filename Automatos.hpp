@@ -33,17 +33,19 @@ class AFD{
 		vector<string> finalStates;
 		vector<string> States;
 		string alphabet;
+		map<string, bool> estadosAlcancaveis;
 	public:
 		string estadoInicial;
 		bool ReadEntry(string daVez, char * entry);
 		void NewConnection(string qx, string qy, char alpha);
 		void AddStates(string state);
 		void setEstadoInicial(string state);
-		void AddFinalStates(const int n, ...);
+		void AddFinalStates(string state);
 		void NewAlphabet(string alpha);
 		int lerArquivoAFD(string diretorio);
-		void fazerFuncaoTotal();
-		void removerEstadosInalcancaveis();
+		int FazerFuncTotal();
+		void RemoverEstadosInalcancaveis();
+		void Fecho(string daVez);
 		void saveToFile(string file);
 };
 

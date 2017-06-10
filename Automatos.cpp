@@ -41,13 +41,13 @@ void leonardo(string file)
 		return;
 
 	char fitaEntrada[1000];
-	cout << "Digite fita de entrata para testar no automato\n";
+	cout << "Escreva a palavra para testar no autômato:\n";
 	scanf("%s", fitaEntrada);
 
 	if(automato.ReadEntry(automato.estadoInicial, fitaEntrada))
-		cout << "Fita de entrada aceita pelo automato\n";
+		cout << "Palavra aceita pelo autômato.\n";
 	else
-		cout << "Fita de entrada não aceita pelo automato\n"; 
+		cout << "Palavra não aceita pelo autômato.\n"; 
 }
 
 void weiss(string file)
@@ -63,8 +63,12 @@ void weiss(string file)
 
 void mentz(string file)
 {
-	// todo
-	printf("Erro. Não implementado.\n");
+	AFD automato; 
+	if (!automato.lerArquivoAFD(file))
+		return;
+
+	automato.FazerFuncTotal();
+	automato.RemoverEstadosInalcancaveis();
 }
 
 
@@ -97,14 +101,14 @@ int AFD::lerArquivoAFD(string diretorio){
 	for(int i = 0; i < numeroEstadosFinais; i++){
 		string tmpEstado;
 		arquivoAFD >> tmpEstado;
-		this->AddFinalStates(1, tmpEstado);
+		this->AddFinalStates(tmpEstado);
 	} //Leitura dos estados finais
 
 	int numeroElementos;
 	arquivoAFD >> numeroElementos;
 	string Alfabeto;
 	for(int i = 0; i < numeroElementos; i++){
-		string tmpElemento;
+		char tmpElemento;
 		arquivoAFD >> tmpElemento;
 		Alfabeto += tmpElemento;
 	} //Leitura dos simbolos do alfabeto
@@ -124,20 +128,27 @@ int AFD::lerArquivoAFD(string diretorio){
 
 bool AFD::ReadEntry(string daVez, char * entry){
 	pair<string, char> par = {daVez, *entry};
-	if(*entry != '\0'){
-		if(this->automatoConnection[par] != "") 
-			cout << "δ: (" <<  daVez << " × " << *entry << ") → " 
-		         <<  this->automatoConnection[par] << endl; 
 
-		else if(this->automatoConnection[par] == "")
-			return false; 
-	}else{
+	if(*entry != '\0')
+	{
+		if(this->automatoConnection[par] != "") 
+			cout << "δ: (" <<  daVez << ", " << *entry << ") →  " 
+		         << this->automatoConnection[par] << endl; 
+
+		else if(this->automatoConnection.count(par) < 1)
+			return false;
+	}
+	else
+	{
+		bool finalState = false;
 		for(size_t i = 0; i < this->finalStates.size(); i++){
-			if(daVez == this->finalStates[i])
-				return true;
+			if(this->finalStates[i].compare(daVez) == 0)
+				finalState = true;
 		}
 
-		return false;
+		cout << "\nO estado atual (" << daVez << ") " << (finalState ? "é ":"não é ") << "final.\n";
+
+		return finalState;
 	}
 	return ReadEntry(this->automatoConnection[par], ++entry); // @.@
 }
@@ -146,12 +157,13 @@ void AFD::NewConnection(string qx, string qy, char alpha){
 	this->automatoConnection[{qx, alpha}] = qy;
 }
 
-void AFD::AddFinalStates(const int n, ...){
-	va_list args;
-	va_start(args, n);
-	for(int i = 0; i < n; i++)
-		this->finalStates.push_back(va_arg(args, char*));
-	va_end(args);
+void AFD::NewAlphabet(string alpha)
+{
+	this->alphabet = alpha;
+}
+
+void AFD::AddFinalStates(string state){
+	this->finalStates.push_back(state);
 }
 
 void AFD::AddStates(string state){
@@ -163,21 +175,56 @@ void AFD::setEstadoInicial(string state)
 	this->estadoInicial = state;
 }
 
-void AFD::NewAlphabetSymbol(string symbol){
-	this -> alphabet.push_back(symbol);
+int AFD::FazerFuncTotal()
+{
+	int novoEstado = false;
+	int sts = this->States.size();
+	int als = this->alphabet.size();
+	for (int i = 0; i < sts; i++)
+	{
+		for (int j = 0; j < als; j++)
+		{
+			if ( !this->automatoConnection.count({States[i], alphabet[j]}) )
+			{
+				if (!novoEstado)
+				{
+					novoEstado = true;
+					cout << "Hurray!\n";
+					AddStates("qBlackHole");
+				}
+				this->NewConnection(States[i], "qBlackHole", alphabet[j]);
+			}
+		}
+	}
+
+	if (novoEstado)
+	{
+		for (int i = 0; i < als; i++)
+			this->NewConnection("qBlackHole", "qBlackHole", alphabet[i]);
+	}
+
+	return novoEstado;
 }
 
 
-int VerificarFuncProgTotal()
+void AFD::RemoverEstadosInalcancaveis()
 {
-	for (int i = 0; i < States.size(); i++)
+	Fecho(this->estadoInicial);
+	for (int i = States.size() - 1; i >= 0; i--)
 	{
-		if (automatoConnection.count(States[i]) < )
+		cout << States[i] << " - é " << (estadosAlcancaveis.count(States[i]) ? "" : "in") << "alcançável\n";
+		if (!estadosAlcancaveis.count(States[i]))
+			States.erase(States.begin() + i);
 	}
 }
 
-
-int VerificarEstadosInuteis();
+void AFD::Fecho(string daVez)
+{
+	estadosAlcancaveis[daVez] = true;
+	int als = this->alphabet.size();
+	for (int i = 0; i < als; i++)
+		Fecho(automatoConnection[{daVez, alphabet[i]}]);
+}
 
 /* ======================= AFN ======================= */
 
