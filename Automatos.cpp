@@ -69,7 +69,7 @@ void mentz(string file)
 
 	automato.FazerFuncTotal();
 	automato.RemoverEstadosInalcancaveis();
-	automato.Minimizar();
+	AFD minimo = automato.Minimizar();
 	automato.saveToFile(file);
 }
 
@@ -261,9 +261,93 @@ void AFD::Fecho(string daVez)
 	}
 }
 
-void AFD::Minimizar()
+AFD AFD::Minimizar()
 {
-	
+	AFD newMinimo;
+	newMinimo.NewAlphabet(this->alphabet);
+	map<pair<string, string>, bool> equivalentes;
+	int mark = 0, nmark = 0;
+
+	// Passo 1: Criação da tabela de estados equivalentes (completa, não triangular)
+	// Passo 2: Marcação dos estados trivialmente não-equivalentes
+
+	for (int i = 0; i < (int)States.size(); i++)
+	{
+		for (int j = 0; j < (int)States.size(); j++)
+		{
+			equivalentes[{States[i], States[j]}] = true;
+			if ((find(finalStates.begin(), finalStates.end(), States[i]) != finalStates.end()) !=
+				(find(finalStates.begin(), finalStates.end(), States[j]) != finalStates.end()))
+			{
+				equivalentes[{States[i], States[j]}] = false;
+				mark++;
+			}
+		}
+	}
+
+	cout << "Marcações triviais:\n";
+	for (int i = 0; i < (int)States.size(); i++)
+	{
+		for (int j = 0; j < (int)States.size(); j++)
+			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
+		printf("\n");
+	}
+
+	bool areEqual;
+	string r1, r2;
+	nmark = mark;
+
+	// Passo 3: Marcação dos estados não equivalentes
+	// feito até não marcar mais ninguém
+
+	do
+	{
+		mark = nmark;
+		for (int i = 0; i < (int)States.size(); i++)
+		{
+			for (int j = 0; j < (int)States.size(); j++)
+			{
+				areEqual = equivalentes[{States[i], States[j]}];
+				for (int k = 0; k < (int)alphabet.size() and areEqual; k++)
+				{
+					r1 = automatoConnection[{States[i], alphabet[k]}];
+					r2 = automatoConnection[{States[j], alphabet[k]}];
+					if (!equivalentes[{r1, r2}])
+					{
+						areEqual = false;
+						equivalentes[{States[i], States[j]}] = false;
+						nmark++;
+					}
+				}
+			}
+		}
+	} while (nmark != mark);
+
+	cout << "Finalizado:\n";
+	for (int i = 0; i < (int)States.size(); i++)
+	{
+		for (int j = 0; j < (int)States.size(); j++)
+			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
+		printf("\n");
+	}
+
+	/*
+	do
+	{
+		for (int i = 0; i < (int)States.size(); i++)
+		{
+			for (int j = 0; j < (int)States.size(); j++)
+			{
+				if (i!=j)
+				{
+					if (equivalentes[{States[i], States[j]}])
+				}
+			}
+		}
+	} while (nmark != mark); */
+
+
+	return newMinimo;
 }
 
 void AFD::saveToFile(string path)

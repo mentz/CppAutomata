@@ -47,7 +47,7 @@ class AFD{
 		int FazerFuncTotal();
 		void RemoverEstadosInalcancaveis();
 		void Fecho(string daVez);
-		void Minimizar();
+		AFD Minimizar();
 		void saveToFile(string file);
 };
 
