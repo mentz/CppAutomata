@@ -34,6 +34,7 @@ class AFD{
 		vector<string> States;
 		string alphabet;
 		map<string, bool> estadosAlcancaveis;
+		map<pair<string, char>, string> AFDMinimo;
 	public:
 		string estadoInicial;
 		bool ReadEntry(string daVez, char * entry);

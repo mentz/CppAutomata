@@ -255,7 +255,7 @@ void AFD::saveToFile(string path)
 	fout << endl << this->alphabet.size();
 	for (int i = 0; i < this->alphabet.size(); i++)
 		fout << " " << alphabet[i];
-	fout << endl;
+	fout << endl << this->AFDMinimo.size() << endl;
 }
 
 /* ======================= AFN ======================= */
