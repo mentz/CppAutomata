@@ -69,6 +69,8 @@ void mentz(string file)
 
 	automato.FazerFuncTotal();
 	automato.RemoverEstadosInalcancaveis();
+	automato.Minimizar();
+	automato.saveToFile(file);
 }
 
 
@@ -189,7 +191,6 @@ int AFD::FazerFuncTotal()
 				if (!novoEstado)
 				{
 					novoEstado = true;
-					cout << "i, j, " << i << ", " << j << "\tHurray!\n";
 					AddStates("qBlackHole");
 				}
 				this->NewConnection(States[i], "qBlackHole", alphabet[j]);
@@ -221,9 +222,29 @@ void AFD::RemoverEstadosInalcancaveis()
 	Fecho(this->estadoInicial);
 	for (int i = States.size() - 1; i >= 0; i--)
 	{
-		cout << States[i] << " - é " << (estadosAlcancaveis.count(States[i]) ? "" : "in") << "alcançável\n";
 		if (!estadosAlcancaveis.count(States[i]))
+		{
+			map<pair<string, char>, string>::iterator itFuncProg = this->automatoConnection.begin();
+
+			for(; itFuncProg != this->automatoConnection.end(); itFuncProg++){
+				if(itFuncProg ->first.first == States[i] or itFuncProg->second == States[i]){
+					this->automatoConnection.erase(itFuncProg);
+					itFuncProg--;
+				}
+			}
+
+
+			vector<string>::iterator itEstFinais = finalStates.begin();
+			for (; itEstFinais != finalStates.end(); itEstFinais++)
+			{
+				if (States[i].compare(*itEstFinais) == 0)
+				{
+					finalStates.erase(itEstFinais);
+					itEstFinais--;
+				}
+			}
 			States.erase(States.begin() + i);
+		}
 	}
 }
 
@@ -235,10 +256,14 @@ void AFD::Fecho(string daVez)
 	for (int i = 0; i < als; i++)
 	{
 		next = this->automatoConnection[{daVez, alphabet[i]}];
-		cout << "(" << daVez << ", " << alphabet[i] << ") -> " << next << endl;
 		if (!estadosAlcancaveis[next])
 			Fecho(this->automatoConnection[{daVez, alphabet[i]}]);
 	}
+}
+
+void AFD::Minimizar()
+{
+	
 }
 
 void AFD::saveToFile(string path)
@@ -255,7 +280,10 @@ void AFD::saveToFile(string path)
 	fout << endl << this->alphabet.size();
 	for (int i = 0; i < (int)this->alphabet.size(); i++)
 		fout << " " << alphabet[i];
-	fout << endl << this->AFDMinimo.size() << endl;
+	fout << endl << this->automatoConnection.size() << endl;
+	map<pair<string, char> , string > ::iterator it = this->automatoConnection.begin();
+	for (; it != this->automatoConnection.end(); it++)
+		fout << it->first.first << " " << it->first.second << " " << it->second << endl;
 }
 
 /* ======================= AFN ======================= */
