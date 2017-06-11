@@ -330,21 +330,20 @@ AFD AFD::Minimizar()
 			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
 		printf("\n");
 	}
-
-	/*
+	
 	do
 	{
-		for (int i = 0; i < (int)States.size(); i++)
+		for (int i = 1; i < (int)States.size(); i++)
 		{
-			for (int j = 0; j < (int)States.size(); j++)
+			for (int j = 0; j < i; j++)
 			{
-				if (i!=j)
+				if (equivalentes[{States[i], States[j]}])
 				{
-					if (equivalentes[{States[i], States[j]}])
+
 				}
 			}
 		}
-	} while (nmark != mark); */
+	} while (nmark != mark);
 
 
 	return newMinimo;
