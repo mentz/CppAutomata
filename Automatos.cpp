@@ -40,11 +40,11 @@ void leonardo(string file)
 	if (!automato.lerArquivoAFD(file))
 		return;
 
-	char fitaEntrada[1000];
+	string fitaEntrada;
 	cout << "Escreva a palavra para testar no autômato:\n";
-	scanf("%s", fitaEntrada);
+	cin >> fitaEntrada;
 
-	if(automato.ReadEntry(automato.estadoInicial, fitaEntrada))
+	if(automato.ReadEntry(automato.estadoInicial, fitaEntrada.begin()))
 		cout << "Palavra aceita pelo autômato.\n";
 	else
 		cout << "Palavra não aceita pelo autômato.\n"; 
@@ -128,7 +128,7 @@ int AFD::lerArquivoAFD(string diretorio){
 	return 1;
 }
 
-bool AFD::ReadEntry(string daVez, char * entry){
+bool AFD::ReadEntry(string daVez, string::iterator entry){
 	pair<string, char> par = {daVez, *entry};
 
 	if(*entry != '\0')
