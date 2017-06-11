@@ -247,13 +247,13 @@ void AFD::saveToFile(string path)
 	string npath = path; npath.insert(0, "min_");
 	fout.open(npath);
 	fout << this->estadoInicial << endl << this->States.size();
-	for (int i = 0; i < this->States.size(); i++)
+	for (int i = 0; i < (int)this->States.size(); i++)
 		fout << " " << this->States[i];
 	fout << endl << this->finalStates.size();
-	for (int i = 0; i < this->finalStates.size(); i++)
+	for (int i = 0; i < (int)this->finalStates.size(); i++)
 		fout << " " << this->finalStates[i];
 	fout << endl << this->alphabet.size();
-	for (int i = 0; i < this->alphabet.size(); i++)
+	for (int i = 0; i < (int)this->alphabet.size(); i++)
 		fout << " " << alphabet[i];
 	fout << endl << this->AFDMinimo.size() << endl;
 }
@@ -460,12 +460,21 @@ void AFN::converterAFN_AFD(){
 		}
 	}
 
+	//Retirando os estados inúteis -> Não chegam em estado final
 	for(int i = 0; i < (int)this -> novosEstados.size(); i++){
 		map<string, bool> estadosVisitados;
 		if(!this -> verificaSeChegaEmEstadoFinal(this -> novosEstados[i], estadosVisitados)){
 			this -> removeDoAFD(this -> novosEstados[i]);
 			this -> novosEstados.erase(this -> novosEstados.begin() + i);
 			i--;
+		}
+	}
+
+	//Removendo as transições vazias
+	map<pair<string, char>, string>::iterator it = AFD.begin();
+	for(; it != AFD.end(); it++){
+		if(it -> second.size() == 0){
+			this -> AFD.erase(it);
 		}
 	}
 }
