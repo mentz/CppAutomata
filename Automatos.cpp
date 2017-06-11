@@ -125,6 +125,8 @@ int AFD::lerArquivoAFD(string diretorio){
 		this->NewConnection(tmpEstado1, tmpEstado2, simboloConexao);
 	}
 
+	arquivoAFD.close();
+
 	return 1;
 }
 
@@ -367,6 +369,7 @@ void AFD::saveToFile(string path)
 	map<pair<string, char> , string > ::iterator it = this->automatoConnection.begin();
 	for (; it != this->automatoConnection.end(); it++)
 		fout << it->first.first << " " << it->first.second << " " << it->second << endl;
+	fout.close();
 }
 
 /* ======================= AFN ======================= */
@@ -469,7 +472,7 @@ bool AFN::estadoEhFinal(vector<string> &estadosFinais, string simbolo){
 }
 
 bool AFN::estadoEhFinal(vector<string> &estadosFinais, vector<string> &simbolos){
-	for(int i = 0; i < (int)simbolos.size(); i++){
+	for(int i = 0; i < (int)simbolos.size(); i++) {
 		string simboloDaVez = simbolos[i];
 		if(find(estadosFinais.begin(), estadosFinais.end(), simboloDaVez) != estadosFinais.end()){
 			return true;
