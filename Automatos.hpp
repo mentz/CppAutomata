@@ -48,6 +48,8 @@ class AFD{
 		void RemoverEstadosInalcancaveis();
 		void Fecho(string daVez);
 		AFD Minimizar();
+		void RemoverEstado(string estado);
+		int EstadoEhInutil(string estado);
 		void saveToFile(string file);
 };
 

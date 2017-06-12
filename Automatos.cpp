@@ -348,7 +348,21 @@ AFD AFD::Minimizar()
 	} while (nmark != mark);
 
 
+	// Passo 5: remover estados que não alcançam estados finais
+	for (int i = (int)newMinimo.States.size(); i >= 0 ; i--)
+	{
+		if (newMinimo.EstadoEhInutil(newMinimo.States[i]))
+		{
+			newMinimo.RemoverEstado(newMinimo.States[i]);
+		}
+	}
+
 	return newMinimo;
+}
+
+int AFD::EstadoEhInutil(string estado)
+{
+
 }
 
 void AFD::saveToFile(string path)
