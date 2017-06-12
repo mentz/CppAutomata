@@ -37,7 +37,7 @@ class AFD{
 		map<pair<string, char>, string> AFDMinimo;
 	public:
 		string estadoInicial;
-		bool ReadEntry(string daVez, char * entry);
+		bool ReadEntry(string daVez, string::iterator entry);
 		void NewConnection(string qx, string qy, char alpha);
 		void AddStates(string state);
 		void setEstadoInicial(string state);
