@@ -332,20 +332,67 @@ AFD AFD::Minimizar()
 			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
 		printf("\n");
 	}
-	
-	do
-	{
-		for (int i = 1; i < (int)States.size(); i++)
-		{
-			for (int j = 0; j < i; j++)
-			{
-				if (equivalentes[{States[i], States[j]}])
-				{
 
+
+	// Passo 4: Unificar estados equivalentes
+
+	vector<string> sequenciaDeEstados;
+	sequenciaDeEstados.push_back(this -> estadoInicial);
+	map<vector<string>, string> novosNomesDosEstados;
+	map<string, vector<string> > estadosOriginaisDoNovoEstado;
+	novosNomesDosEstados[sequenciaDeEstados] = this -> estadoInicial;
+	estadosOriginaisDoNovoEstado[this -> estadoInicial] = sequenciaDeEstados;
+
+	queue<string> filaDeEstados;
+	filaDeEstados.push(novoEstadoInicial);
+
+	this -> novosEstados.push_back(this -> novoEstadoInicial);	
+
+	map<string, bool> novoEstadoJaVisitado;
+
+	while(!filaDeEstados.empty()){
+		string estadoDaVez = filaDeEstados.front();
+		filaDeEstados.pop();
+		novoEstadoJaVisitado[estadoDaVez] = true;
+		for(int i = 0; i < (int)this -> alfabeto.size(); i++){
+			sequenciaDeEstados.clear();
+			map<string, bool> estadoJaVisitado;
+			for(int j = 0; j < (int)this -> estadosOriginaisDoNovoEstado[estadoDaVez].size(); j++){
+				string aux = this -> estadosOriginaisDoNovoEstado[estadoDaVez][j];
+				for(int k = 0; k < (int)this -> AFND[ {aux, this -> alfabeto[i]} ].size(); k++){
+					string aux2 = AFND[ {aux, this -> alfabeto[i]} ][k];
+					if(!estadoJaVisitado[aux2]){
+						sequenciaDeEstados.push_back(aux2);
+						estadoJaVisitado[aux2] = true;
+					}
+				}
+			}
+			if(!sequenciaDeEstados.empty()){
+				sort(sequenciaDeEstados.begin(), sequenciaDeEstados.end());
+				string novoEstado;
+				if(this -> novoNomeDosEstados.count(sequenciaDeEstados) == 0){
+					if(this -> estadoEhFinal(this -> estadosFinais, sequenciaDeEstados)){
+						novoEstado = this -> gerarNovoEstado(true);
+						this -> novosEstadosFinais.push_back(novoEstado);
+					} else {
+						novoEstado = this -> gerarNovoEstado();
+					}
+					
+					this -> novoNomeDosEstados[sequenciaDeEstados] = novoEstado;
+					this -> estadosOriginaisDoNovoEstado[novoEstado] = sequenciaDeEstados;
+
+					this -> novosEstados.push_back(novoEstado);					
+				} else {
+					novoEstado = this -> novoNomeDosEstados[sequenciaDeEstados];
+				}
+				this -> AFD[ {estadoDaVez, this -> alfabeto[i]} ] = novoEstado;
+
+				if(!novoEstadoJaVisitado[novoEstado]){
+					filaDeEstados.push(novoEstado);
 				}
 			}
 		}
-	} while (nmark != mark);
+	}
 
 
 	// Passo 5: remover estados que não alcançam estados finais
@@ -360,9 +407,29 @@ AFD AFD::Minimizar()
 	return newMinimo;
 }
 
-int AFD::EstadoEhInutil(string estado)
+bool AFD::EstadoEhInutil(string estado) // verifica se chega em estado final
 {
+	this->estadosAlcancaveis.clear();
+	bool inutil;
+	Fecho(States[i]);
+	inutil = true;
+	for (int j = 0; j < estadosAlcancaveis.size(); j++)
+		for (int k = 0; k < finalStates.size(); k++)
+			if (estadosAlcancaveis[j] == finalStates[k])
+				inutil = false;
 
+	return inutil;
+}
+
+void AFD::RemoverEstado(string estado)
+{
+	map<pair<string, char>, string>::iterator it = this->automatoConnection.begin();
+
+	for(; it != this->automatoConnection.end(); it++){
+		if(it -> first.first == estado or it -> second == estado){
+			this -> AFD.erase(it);
+		}
+	}
 }
 
 void AFD::saveToFile(string path)
@@ -481,14 +548,14 @@ string AFN::gerarNovoEstado(bool ehEstadoFinal = false){
 	return novoNome;
 }
 
-bool AFN::estadoEhFinal(vector<string> &estadosFinais, string simbolo){
-	return find(estadosFinais.begin(), estadosFinais.end(), simbolo) != estadosFinais.end() ? true : false;
+bool AFN::estadoEhFinal(vector<string> &estadosFinais, string estado){
+	return find(thi->estadosFinais.begin(), this->estadosFinais.end(), estado) != estadosFinais.end() ? true : false;
 }
 
-bool AFN::estadoEhFinal(vector<string> &estadosFinais, vector<string> &simbolos){
-	for(int i = 0; i < (int)simbolos.size(); i++) {
-		string simboloDaVez = simbolos[i];
-		if(find(estadosFinais.begin(), estadosFinais.end(), simboloDaVez) != estadosFinais.end()){
+bool AFN::estadoEhFinal(vector<string> &estadosFinais, vector<string> &estados){
+	for(int i = 0; i < (int)estados.size(); i++) {
+		string estadoDaVez = estados[i];
+		if(find(estadosFinais.begin(), estadosFinais.end(), estadoDaVez) != estadosFinais.end()){
 			return true;
 		}
 	}
@@ -525,7 +592,7 @@ bool AFN::verificaSeChegaEmEstadoFinal(string estadoDaVez, map<string, bool> &es
 }
 
 void AFN::converterAFN_AFD(){
-	if(this -> estadoEhFinal(this -> estadosFinais, this -> estadoInicial)){
+	if (this -> estadoEhFinal(this -> estadosFinais, this -> estadoInicial)){
 		this -> novoEstadoInicial = gerarNovoEstado(true);
 		this -> novosEstadosFinais.push_back(novoEstadoInicial);
 	} else {
@@ -591,7 +658,7 @@ void AFN::converterAFN_AFD(){
 	//Retirando os estados inúteis -> Não chegam em estado final
 	for(int i = 0; i < (int)this -> novosEstados.size(); i++){
 		map<string, bool> estadosVisitados;
-		if(!this -> verificaSeChegaEmEstadoFinal(this -> novosEstados[i], estadosVisitados)){
+		if(!this -> verificaSeChegaEmEstadoFinal(this -> novosEstados[i], estadosVisitados)) {
 			this -> removeDoAFD(this -> novosEstados[i]);
 			this -> novosEstados.erase(this -> novosEstados.begin() + i);
 			i--;
