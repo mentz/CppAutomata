@@ -49,7 +49,8 @@ class AFD{
 		void Fecho(string daVez);
 		AFD Minimizar();
 		void RemoverEstado(string estado);
-		int EstadoEhInutil(string estado);
+		bool EstadoEhInutil(string estado);
+		bool EstadoEhFinal(string estado);
 		void saveToFile(string file);
 };
 
