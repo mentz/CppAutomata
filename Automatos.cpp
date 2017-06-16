@@ -67,10 +67,15 @@ void mentz(string file)
 	if (!automato.lerArquivoAFD(file))
 		return;
 
+	cout << "Fazendo função programa total...\n";
 	automato.FazerFuncTotal();
+	cout << "Removendo estados inalcançáveis...\n";
 	automato.RemoverEstadosInalcancaveis();
+	cout << "Minimizando autômato:\n";
 	AFD minimo = automato.Minimizar();
 	minimo.saveToFile(file);
+	cout << "\nMinimização Finalizada\n";
+	cout << "Veja seu autômato mínimo no arquivo \"min_" << file << "\".\n";
 }
 
 
@@ -202,7 +207,7 @@ int AFD::FazerFuncTotal()
 
 	if (novoEstado)
 	{
-		cout << "Houve a adição de um estado para tornar a função programa total: qBlackHole\n";
+		cout << " - Houve a adição de um estado para tornar a função programa total: qBlackHole\n";
 		for (int i = 0; i < als; i++)
 			this->NewConnection("qBlackHole", "qBlackHole", alphabet[i]);
 	}
@@ -223,6 +228,7 @@ void AFD::RemoverEstadosInalcancaveis()
 			for(; itFuncProg != this->automatoConnection.end(); itFuncProg++){
 				if(itFuncProg ->first.first == States[i] or itFuncProg->second == States[i]){
 					this->automatoConnection.erase(itFuncProg);
+					cout << " - Estado inalcançável removido: " << itFuncProg->second << endl;
 					itFuncProg--;
 				}
 			}
@@ -268,6 +274,8 @@ AFD AFD::Minimizar()
 	// Passo 1: Criação da tabela de estados equivalentes (completa, não triangular)
 	// Passo 2: Marcação dos estados trivialmente não-equivalentes
 
+	cout << " - Criação da tabela de equivalência de estados:\n";
+
 	for (int i = 0; i < (int)States.size(); i++)
 	{
 		for (int j = 0; j < (int)States.size(); j++)
@@ -281,6 +289,8 @@ AFD AFD::Minimizar()
 			}
 		}
 	}
+
+	cout << "    × Estados trivialmente não-equivalentes: ... OK\n";
 
 	bool areEqual;
 	string r1, r2;
@@ -312,16 +322,24 @@ AFD AFD::Minimizar()
 		}
 	} while (nmark != mark);
 
-	cout << "Equivalências:\n";
-	for (int i = 0; i < (int)States.size(); i++)
-	{
-		for (int j = 0; j < (int)States.size(); j++)
-			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
-		printf("\n");
-	}
-	printf("\n");
+	cout << "    × Restante dos estados não-equivalentes: ... OK\n";
+
+
+	// Uncomment for a very nice equivalence table
+	
+	// cout << "Equivalências:\n";
+	// for (int i = 0; i < (int)States.size(); i++)
+	// {
+	// 	for (int j = 0; j < (int)States.size(); j++)
+	// 		printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
+	// 	printf("\n");
+	// }
+	// printf("\n");
+	
 
 	// Passo 4: Unificar estados equivalentes
+
+	cout << " - Unificação dos estados equivalentes:\n";
 
 	vector<string> sequenciaDeEstados;
 	sequenciaDeEstados.push_back(this -> estadoInicial);
@@ -363,11 +381,14 @@ AFD AFD::Minimizar()
 			}
 		}
 		if (sequenciaDeEstados.size() > 1)
+		{
 			newName += "}";
+			cout << "    × Estados unidos: " << newName << endl;
+		}
 		for (int i = 0; i < (int) sequenciaDeEstados.size(); i++)
 			novosNomesDosEstados[sequenciaDeEstados[i]] = newName;
 		
-		cout << "estadosUnidos: " << newName << endl;
+		
 
 		estadosOriginaisDoNovoEstado[newName] = sequenciaDeEstados;
 		
@@ -398,16 +419,20 @@ AFD AFD::Minimizar()
 		}
 	}
 
+	cout << " - Remoção de estados inúteis: ";
+
 	cout << endl;
 	// Passo 5: remover estados que não alcançam estados finais
 	for (int i = (int) novoAutomato.States.size() - 1; i >= 0 ; i--)
 	{
 		if (novoAutomato.EstadoEhInutil(novoAutomato.States[i]))
 		{
-			cout << novoAutomato.States[i] << " é um estado inútil." << endl;
+			cout << "    × " << novoAutomato.States[i] << " é um estado inútil ";
 			novoAutomato.RemoverEstado(novoAutomato.States[i]);
 		}
 	}
+
+
 	
 	return novoAutomato;
 }
@@ -453,7 +478,7 @@ void AFD::RemoverEstado(string estado)
 
 	vector<string>::iterator sit = find(this->States.begin(), this->States.end(), estado);
 	this->States.erase(sit);
-	cout << estado << " foi removido.\n";
+	cout << " e foi removido.\n";
 }
 
 void AFD::saveToFile(string path)
