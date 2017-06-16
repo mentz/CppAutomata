@@ -70,7 +70,7 @@ void mentz(string file)
 	automato.FazerFuncTotal();
 	automato.RemoverEstadosInalcancaveis();
 	AFD minimo = automato.Minimizar();
-	automato.saveToFile(file);
+	minimo.saveToFile(file);
 }
 
 
@@ -202,18 +202,10 @@ int AFD::FazerFuncTotal()
 
 	if (novoEstado)
 	{
+		cout << "Houve a adição de um estado para tornar a função programa total: qBlackHole\n";
 		for (int i = 0; i < als; i++)
 			this->NewConnection("qBlackHole", "qBlackHole", alphabet[i]);
 	}
-
-/*	// Existe para verificar se faz o correto ao totalizar a função programa.
-	for (int i = 0; i < (int)this->States.size(); i++)
-	{
-		for (int j = 0; j < als; j++)
-			cout << "δ: (" <<  States[i] << ", " << alphabet[j] << ") →  " 
-		         << this->automatoConnection[{States[i], alphabet[j]}] << endl;
-	}
-*/
 
 	return novoEstado;
 }
@@ -252,21 +244,24 @@ void AFD::RemoverEstadosInalcancaveis()
 
 void AFD::Fecho(string daVez)
 {
+	if (daVez == "")
+		return;
 	estadosAlcancaveis[daVez] = true;
 	int als = this->alphabet.size();
 	string next;
 	for (int i = 0; i < als; i++)
 	{
-		next = this->automatoConnection[{daVez, alphabet[i]}];
+		next = (this->automatoConnection.count({daVez, alphabet[i]}) > 0) ?
+			this->automatoConnection[{daVez, alphabet[i]}] : "";
 		if (!estadosAlcancaveis[next])
-			Fecho(this->automatoConnection[{daVez, alphabet[i]}]);
+			Fecho(next);
 	}
 }
 
 AFD AFD::Minimizar()
 {
-	AFD newMinimo;
-	newMinimo.NewAlphabet(this->alphabet);
+	AFD novoAutomato;
+	novoAutomato.NewAlphabet(this->alphabet);
 	map<pair<string, string>, bool> equivalentes;
 	int mark = 0, nmark = 0;
 
@@ -285,14 +280,6 @@ AFD AFD::Minimizar()
 				mark++;
 			}
 		}
-	}
-
-	cout << "Marcações triviais:\n";
-	for (int i = 0; i < (int)States.size(); i++)
-	{
-		for (int j = 0; j < (int)States.size(); j++)
-			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
-		printf("\n");
 	}
 
 	bool areEqual;
@@ -325,23 +312,21 @@ AFD AFD::Minimizar()
 		}
 	} while (nmark != mark);
 
-	cout << "Finalizado:\n";
+	cout << "Equivalências:\n";
 	for (int i = 0; i < (int)States.size(); i++)
 	{
 		for (int j = 0; j < (int)States.size(); j++)
 			printf("%s ", equivalentes[{States[i], States[j]}] ? "-" : "X");
 		printf("\n");
 	}
-
+	printf("\n");
 
 	// Passo 4: Unificar estados equivalentes
 
 	vector<string> sequenciaDeEstados;
 	sequenciaDeEstados.push_back(this -> estadoInicial);
-	map<vector<string>, string> novosNomesDosEstados;
+	map<string, string> novosNomesDosEstados;
 	map<string, vector<string> > estadosOriginaisDoNovoEstado;
-	novosNomesDosEstados[sequenciaDeEstados] = this -> estadoInicial;
-	estadosOriginaisDoNovoEstado[this -> estadoInicial] = sequenciaDeEstados;
 
 	vector<string> novosEstados;
 	novosEstados.push_back(this -> estadoInicial);
@@ -349,14 +334,19 @@ AFD AFD::Minimizar()
 	vector<string> novosEstadosFinais;
 
 	queue<string> filaDeEstados;
-	filaDeEstados.push(estadoInicial);
 
 	map<string, bool> novoEstadoJaVisitado;
 
-	while(!filaDeEstados.empty()){
-		string estadoDaVez = filaDeEstados.front();
-		filaDeEstados.pop();
+	for (int i = 0; i < (int) States.size(); i++) {
+		sequenciaDeEstados.clear();
+		string estadoDaVez = States[i];
+
+		// pular checagem de estado já agrupado, marcar estado como visitado
+		if (novoEstadoJaVisitado[estadoDaVez]) continue;
 		novoEstadoJaVisitado[estadoDaVez] = true;
+		sequenciaDeEstados.push_back(estadoDaVez);
+
+		// começar a escrever o novo nome do grupo de estados
 		string newName = estadoDaVez;
 
 		// Encontrar estados equivalentes e adicioná-los ao estado atual e à lista de 'Vistos'
@@ -364,84 +354,76 @@ AFD AFD::Minimizar()
 		{
 			if (estadoDaVez != States[i] && equivalentes[{estadoDaVez, States[i]}])
 			{
+				if (sequenciaDeEstados.size() == 1)
+					newName.insert(0, "{");
 				newName += ",";
 				newName += States[i];
+				sequenciaDeEstados.push_back(States[i]);
+				novoEstadoJaVisitado[States[i]] = true;
 			}
 		}
+		if (sequenciaDeEstados.size() > 1)
+			newName += "}";
+		for (int i = 0; i < (int) sequenciaDeEstados.size(); i++)
+			novosNomesDosEstados[sequenciaDeEstados[i]] = newName;
+		
+		cout << "estadosUnidos: " << newName << endl;
 
-		/*
-		for(int i = 0; i < (int) this->alphabet.size(); i++){
-			sequenciaDeEstados.clear();
-			map<string, bool> estadoJaVisitado;
-
-			for(int j = 0; j < (int) this -> estadosOriginaisDoNovoEstado[estadoDaVez].size(); j++){
-				string aux = this -> estadosOriginaisDoNovoEstado[estadoDaVez][j];
-				for(int k = 0; k < (int)this -> AFND[ {aux, this -> alfabeto[i]} ].size(); k++){
-					string aux2 = AFND[ {aux, this -> alfabeto[i]} ][k];
-					if(!estadoJaVisitado[aux2]){
-						sequenciaDeEstados.push_back(aux2);
-						estadoJaVisitado[aux2] = true;
-					}
-				}
-			}
-			
-
-			if(!sequenciaDeEstados.empty()){
-				sort(sequenciaDeEstados.begin(), sequenciaDeEstados.end());
-				string novoEstado;
-				if (novosNomesDosEstados.count(sequenciaDeEstados) == 0){
-					if (this -> estadoEhFinal(this -> estadosFinais, sequenciaDeEstados)){
-						novoEstado = this -> gerarNovoEstado(true);
-						this -> novosEstadosFinais.push_back(novoEstado);
-					} else {
-						novoEstado = this -> gerarNovoEstado();
-					}
-					
-					this -> novosNomesDosEstados[sequenciaDeEstados] = novoEstado;
-					this -> estadosOriginaisDoNovoEstado[novoEstado] = sequenciaDeEstados;
-
-					this -> novosEstados.push_back(novoEstado);					
-				} else {
-					novoEstado = this -> novosNomesDosEstados[sequenciaDeEstados];
-				}
-				this -> AFD[ {estadoDaVez, this -> alfabeto[i]} ] = novoEstado;
-
-				if(!novoEstadoJaVisitado[novoEstado]){
-					filaDeEstados.push(novoEstado);
-				}
-			}
+		estadosOriginaisDoNovoEstado[newName] = sequenciaDeEstados;
+		
+		// Verificar se é estado inicial, se sim, configurar conjunto inteiro como inicial.
+		if (EstadoEhInicial(estadoDaVez)) {
+			novoAutomato.setEstadoInicial(newName);
 		}
-		*/
+		// Verificar se é estado final, se sim, configurar conjunto inteiro como final.
+		if (EstadoEhFinal(estadoDaVez)) {
+			novoAutomato.AddFinalStates(newName);
+		}
+		novoAutomato.AddStates(newName);
 	}
 
-
-	// Passo 5: remover estados que não alcançam estados finais
-	for (int i = (int)newMinimo.States.size(); i >= 0 ; i--)
+	for (int i = 0; i < (int) novoAutomato.States.size(); i++)
 	{
-		if (newMinimo.EstadoEhInutil(newMinimo.States[i]))
+		string estadoDaVez = novoAutomato.States[i];
+		for (int j = 0; j < (int) this->alphabet.size(); j++)
 		{
-			newMinimo.RemoverEstado(newMinimo.States[i]);
+			string estadoTeste = estadosOriginaisDoNovoEstado[estadoDaVez][0];
+			char l = alphabet[j];
+			
+			// Aqui faz-se a busca do grupo de destino nas transições com o primeiro componente do grupo atual.
+			// Como todos os integrantes do grupo são equivalentes, qualquer um deles levará a estados equivalentes também.
+			novoAutomato.NewConnection(novoAutomato.States[i],
+				novosNomesDosEstados[this->automatoConnection[{estadoTeste, l}]],
+				alphabet[j]); // Bagunçado, mas funciona.
 		}
 	}
 
-	return newMinimo;
+	cout << endl;
+	// Passo 5: remover estados que não alcançam estados finais
+	for (int i = (int) novoAutomato.States.size() - 1; i >= 0 ; i--)
+	{
+		if (novoAutomato.EstadoEhInutil(novoAutomato.States[i]))
+		{
+			cout << novoAutomato.States[i] << " é um estado inútil." << endl;
+			novoAutomato.RemoverEstado(novoAutomato.States[i]);
+		}
+	}
+	
+	return novoAutomato;
 }
 
 bool AFD::EstadoEhInutil(string estado) // verifica se chega em estado final
 {
+	if (EstadoEhFinal(estado))
+		return false;
 	this->estadosAlcancaveis.clear();
 	bool inutil;
 	Fecho(estado);
 	inutil = true;
-	for (int j = 0; j < (int) estadosAlcancaveis.size(); j++)
+	for (int i = 0; i < (int) this->finalStates.size(); i++)
 	{
-		for (int k = 0; k < (int) finalStates.size(); k++)
-		{
-			if (estadosAlcancaveis[States[j]] && EstadoEhFinal(finalStates[k]))
-			{
-				inutil = false;
-			}
-		}
+		if (estadosAlcancaveis[finalStates[i]])
+			inutil = false;
 	}
 
 	return inutil;
@@ -452,15 +434,26 @@ bool AFD::EstadoEhFinal(string estado)
 	return (find(this->finalStates.begin(), this->finalStates.end(), estado) != this->finalStates.end());
 }
 
+bool AFD::EstadoEhInicial(string estado)
+{
+	return (this->estadoInicial.compare(estado) == 0);
+}
+
 void AFD::RemoverEstado(string estado)
 {
 	map<pair<string, char>, string>::iterator it = this->automatoConnection.begin();
 
-	for(; it != this->automatoConnection.end(); it++){
-		if(it -> first.first == estado or it -> second == estado){
-			this -> automatoConnection.erase(it);
-		}
+	for (; it != this->automatoConnection.end();)
+	{
+		if (it -> first.first == estado || it -> second == estado)
+		{
+			it = this->automatoConnection.erase(it);
+		} else it++;
 	}
+
+	vector<string>::iterator sit = find(this->States.begin(), this->States.end(), estado);
+	this->States.erase(sit);
+	cout << estado << " foi removido.\n";
 }
 
 void AFD::saveToFile(string path)
@@ -468,19 +461,26 @@ void AFD::saveToFile(string path)
 	ofstream fout;
 	string npath = path; npath.insert(0, "min_");
 	fout.open(npath);
+
 	fout << this->estadoInicial << endl << this->States.size();
 	for (int i = 0; i < (int)this->States.size(); i++)
 		fout << " " << this->States[i];
+
 	fout << endl << this->finalStates.size();
 	for (int i = 0; i < (int)this->finalStates.size(); i++)
 		fout << " " << this->finalStates[i];
+
 	fout << endl << this->alphabet.size();
 	for (int i = 0; i < (int)this->alphabet.size(); i++)
 		fout << " " << alphabet[i];
+	
 	fout << endl << this->automatoConnection.size() << endl;
-	map<pair<string, char> , string > ::iterator it = this->automatoConnection.begin();
-	for (; it != this->automatoConnection.end(); it++)
+	map<pair<string, char>, string >::iterator it;
+	for (it = this->automatoConnection.begin(); it != this->automatoConnection.end(); it++)
+	{
 		fout << it->first.first << " " << it->first.second << " " << it->second << endl;
+	}
+
 	fout.close();
 }
 

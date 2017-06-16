@@ -1,0 +1,15 @@
+{A,E}
+5 {A,E} {B,H} C F G
+1 C
+2 0 1
+10
+C 0 {A,E}
+C 1 C
+F 0 C
+F 1 G
+G 0 G
+G 1 {A,E}
+{A,E} 0 {B,H}
+{A,E} 1 F
+{B,H} 0 G
+{B,H} 1 C

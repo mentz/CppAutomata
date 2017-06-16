@@ -1,0 +1,11 @@
+q0
+3 q0 qf0 q1
+1 qf0
+2 0 1
+6
+q0 0 qf0
+q0 1 q1
+q1 0 qf0
+q1 1 q1
+qf0 0 qf0
+qf0 1 q1

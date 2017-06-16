@@ -34,7 +34,6 @@ class AFD{
 		vector<string> States;
 		string alphabet;
 		map<string, bool> estadosAlcancaveis;
-		map<pair<string, char>, string> AFDMinimo;
 	public:
 		string estadoInicial;
 		bool ReadEntry(string daVez, string::iterator entry);
@@ -51,6 +50,7 @@ class AFD{
 		void RemoverEstado(string estado);
 		bool EstadoEhInutil(string estado);
 		bool EstadoEhFinal(string estado);
+		bool EstadoEhInicial(string estado);
 		void saveToFile(string file);
 };
 

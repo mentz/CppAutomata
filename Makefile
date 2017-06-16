@@ -4,7 +4,7 @@ FILES = Automatos.cpp Main.cpp
 OUT = a.out
 CC = g++
 WARN = -Wall
-FLAGS = -std=c++11
+FLAGS = -std=c++14
 
 default: $(OUT)
 a.out: $(FILES)
