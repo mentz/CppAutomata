@@ -699,7 +699,7 @@ void AFN::converterAFN_AFD(){
 	//Removendo as transições vazias
 	map<pair<string, char>, string>::iterator it = AFD.begin();
 	for(; it != AFD.end(); it++){
-		if(it -> second.size() == 0){
+		if(it -> second.compare("") == 0){
 			this -> AFD.erase(it);
 		}
 	}
@@ -751,20 +751,24 @@ void AFN::gramaticaAFN(){
 
 	for(int i = 0; i < (int)estados.size(); i++){
 		for(int j = 0; j < (int)alfabeto.size(); j++){
-			for(int k = 0; k < (int)AFND[ {estados[i], alfabeto[j]} ].size(); k++){
-				if(k){
-					gramatica[i][j] += ",";
+			if (AFND.count({estados[i], alfabeto[j]}) > 0) 
+			{
+				for(int k = 0; k < (int)AFND[ {estados[i], alfabeto[j]} ].size(); k++){
+					if(k){
+						gramatica[i][j] += ",";
+					}
+					gramatica[i][j] += AFND[ {estados[i], alfabeto[j]} ][k];
 				}
-				gramatica[i][j] += AFND[ {estados[i], alfabeto[j]} ][k];
+				gramatica[i][j] += "}";
 			}
-			gramatica[i][j] += "}";
 		}
 	}
 
 	cout << "Automato Finito Não-Determinístico:\n";
-	for(int i = 0; i < (int)estados.size(); i++){
-		for(int j = 0; j < (int)alfabeto.size(); j++){
-			cout << "δ: (" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+	for (int i = 0; i < (int)estados.size(); i++) {
+		for (int j = 0; j < (int)alfabeto.size(); j++) {
+			if (AFND.count({estados[i], alfabeto[j]}) > 0) 
+				cout << "δ: (" << estados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
 		} cout << endl;
 	}
 	for(int i = 0; i < 80; i++){
@@ -780,18 +784,23 @@ void AFN::gramaticaAFD(){
 		}
 	}
 
-	for(int i = 0; i < (int)novosEstados.size(); i++){
-		for(int j = 0; j < (int)alfabeto.size(); j++){				
-			gramatica[i][j] += AFD[{ novosEstados[i], alfabeto[j] }];
-			gramatica[i][j] += "}";
+	for (int i = 0; i < (int)novosEstados.size(); i++) {
+		for (int j = 0; j < (int)alfabeto.size(); j++) {
+			if (AFD.count({novosEstados[i], alfabeto[j]}) > 0)
+			{
+				gramatica[i][j] += AFD[{ novosEstados[i], alfabeto[j] }];
+				gramatica[i][j] += "}";
+			}
 		}
 	}
 
 	cout << "Automato Finito Determinístico:\n";
-	for(int i = 0; i < (int)novosEstados.size(); i++){
-		for(int j = 0; j < (int)alfabeto.size(); j++){
-			cout << "δ: (" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
-		} cout << endl;
+	for (int i = 0; i < (int)novosEstados.size(); i++) {
+		for (int j = 0; j < (int)alfabeto.size(); j++) {
+			if (AFD.count({novosEstados[i], alfabeto[j]}) > 0)
+				cout << "δ: (" << novosEstados[i] << ", " << alfabeto[j] << ") -> " << gramatica[i][j] << endl;
+		}
+		cout << endl;
 	}
 	for(int i = 0; i < 80; i++){
 		cout << "#";
