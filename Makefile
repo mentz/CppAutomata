@@ -1,13 +1,13 @@
 # CppAutomata
 
 FILES = Automatos.cpp Main.cpp
-OUT = a.out
+OUT = cppautomata
 CC = g++
 WARN = -Wall
 FLAGS = -std=c++14
 
 default: $(OUT)
-a.out: $(FILES)
+cppautomata: $(FILES)
 	$(CC) $(WARN) -o $(OUT) $(FILES) $(FLAGS)
 
-.PHONY: a.out
+.PHONY: cppautomata
