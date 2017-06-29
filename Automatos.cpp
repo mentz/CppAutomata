@@ -665,7 +665,7 @@ void AFN::converterAFN_AFD(){
 	queue<string> filaDeEstados;
 	filaDeEstados.push(novoEstadoInicial);
 
-	this -> novosEstados.push_back(this -> novoEstadoInicial);	
+	this -> novosEstados.push_back(this -> novoEstadoInicial);
 
 	map<string, bool> novoEstadoJaVisitado;
 
