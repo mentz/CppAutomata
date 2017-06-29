@@ -1,5 +1,21 @@
 q0
-1 q0
-0
+8 q0 q1 q2 q3 qf0 qf1 qf2 qf3
+4 qf0 qf1 qf2 qf3
 2 a b
-0
+16
+q0 a q1
+q0 b q0
+q1 a q2
+q1 b q3
+q2 a qf0
+q2 b qf1
+q3 a qf2
+q3 b qf3
+qf0 a qf0
+qf0 b qf1
+qf1 a qf2
+qf1 b qf3
+qf2 a q2
+qf2 b q3
+qf3 a q1
+qf3 b q0
