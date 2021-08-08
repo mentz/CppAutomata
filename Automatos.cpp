@@ -228,6 +228,7 @@ void AFD::RemoverEstadosInalcancaveis()
 			for(; itFuncProg != this->automatoConnection.end(); itFuncProg++){
 				if(itFuncProg ->first.first == States[i] or itFuncProg->second == States[i]){
 					this->automatoConnection.erase(itFuncProg);
+					cout << " - Estado inalcançável removido: " << itFuncProg->second << endl;
 					itFuncProg--;
 				}
 			}
@@ -242,7 +243,6 @@ void AFD::RemoverEstadosInalcancaveis()
 					itEstFinais--;
 				}
 			}
-			cout << " - Estado inalcançável removido: " << States[i] << endl;
 			States.erase(States.begin() + i);
 		}
 	}
@@ -393,13 +393,11 @@ AFD AFD::Minimizar()
 		estadosOriginaisDoNovoEstado[newName] = sequenciaDeEstados;
 		
 		// Verificar se é estado inicial, se sim, configurar conjunto inteiro como inicial.
-		if (EstadoEhInicial(estadoDaVez))
-		{
+		if (EstadoEhInicial(estadoDaVez)) {
 			novoAutomato.setEstadoInicial(newName);
 		}
 		// Verificar se é estado final, se sim, configurar conjunto inteiro como final.
-		if (EstadoEhFinal(estadoDaVez))
-		{
+		if (EstadoEhFinal(estadoDaVez)) {
 			novoAutomato.AddFinalStates(newName);
 		}
 		novoAutomato.AddStates(newName);
@@ -665,7 +663,7 @@ void AFN::converterAFN_AFD(){
 	queue<string> filaDeEstados;
 	filaDeEstados.push(novoEstadoInicial);
 
-	this -> novosEstados.push_back(this -> novoEstadoInicial);
+	this -> novosEstados.push_back(this -> novoEstadoInicial);	
 
 	map<string, bool> novoEstadoJaVisitado;
 
