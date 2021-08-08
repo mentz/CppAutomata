@@ -532,54 +532,39 @@ void AFN::lerAFN(){
 	} cout << endl;
 	
 	string estadoInicial;
-	getline(arquivoDeEntrada, estadoInicial);
+	arquivoDeEntrada >> estadoInicial;
 	this -> estadoInicial = estadoInicial;
-	string todosOsEstados;
-	getline(arquivoDeEntrada, todosOsEstados);
-	istringstream iss1(todosOsEstados);
 	int quantEstados;
-	iss1 >> quantEstados;
+	arquivoDeEntrada >> quantEstados;
 	for(int i = 0; i < quantEstados; i++){
 		string estado;
-		iss1 >> estado;
+		arquivoDeEntrada >> estado;
 		this -> estados.push_back(estado);
 	}
 
-	string todosOsEstadosFinais;
-	getline(arquivoDeEntrada, todosOsEstadosFinais);
-	
-	istringstream iss2(todosOsEstadosFinais);
 	int quantEstadosFinais;
-	iss2 >> quantEstadosFinais;
+	arquivoDeEntrada >> quantEstadosFinais;
+	
 	for(int i = 0; i < quantEstadosFinais; i++){
 		string estadoFinal;
-		iss2 >> estadoFinal;
+		arquivoDeEntrada >> estadoFinal;
 		this -> estadosFinais.push_back(estadoFinal);
 	}
 
 	int quantSimbolosAlfabeto;
-	string todosOsSimbolosAlfabeto;
-	getline(arquivoDeEntrada, todosOsSimbolosAlfabeto);
-	istringstream iss3(todosOsSimbolosAlfabeto);
-	iss3 >> quantSimbolosAlfabeto;
+	arquivoDeEntrada >> quantSimbolosAlfabeto;
 	for(int i = 0; i < quantSimbolosAlfabeto; i++){
 		char simboloAlfabeto;
-		iss3 >> simboloAlfabeto;
+		arquivoDeEntrada >> simboloAlfabeto;
 		this -> alfabeto.push_back(simboloAlfabeto);
 	}
 
 	int quantTransicoes;
-	string quantidadeDeTransicoes;
-	getline(arquivoDeEntrada, quantidadeDeTransicoes);
-	istringstream iss4(quantidadeDeTransicoes);
-	iss4 >> quantTransicoes;
+	arquivoDeEntrada >> quantTransicoes;
 	for(int i = 0; i < quantTransicoes; i++){
-		string transicao;
-		getline(arquivoDeEntrada, transicao);
-		istringstream iss5(transicao);
 		string estadoAntes, estadoDepois;
 		char simbolo;
-		iss5 >> estadoAntes >> simbolo >> estadoDepois;
+		arquivoDeEntrada >> estadoAntes >> simbolo >> estadoDepois;
 		this -> AFND[{estadoAntes, simbolo}].push_back(estadoDepois);
 	}
 
@@ -650,7 +635,7 @@ bool AFN::verificaSeChegaEmEstadoFinal(string estadoDaVez, map<string, bool> &es
 void AFN::converterAFN_AFD(){
 	if (this -> estadoEhFinal(this -> estadosFinais, this -> estadoInicial)){
 		this -> novoEstadoInicial = gerarNovoEstado(true);
-		this -> novosEstadosFinais.push_back(novoEstadoInicial);
+		this -> novosEstadosFinais.push_back(this -> novoEstadoInicial);
 	} else {
 		this -> novoEstadoInicial = gerarNovoEstado();
 	}
@@ -661,7 +646,7 @@ void AFN::converterAFN_AFD(){
 	this -> estadosOriginaisDoNovoEstado[novoEstadoInicial] = sequenciaDeEstados;
 
 	queue<string> filaDeEstados;
-	filaDeEstados.push(novoEstadoInicial);
+	filaDeEstados.push(this -> novoEstadoInicial);
 
 	this -> novosEstados.push_back(this -> novoEstadoInicial);	
 
@@ -676,6 +661,7 @@ void AFN::converterAFN_AFD(){
 			map<string, bool> estadoJaVisitado;
 			for(int j = 0; j < (int)this -> estadosOriginaisDoNovoEstado[estadoDaVez].size(); j++){
 				string aux = this -> estadosOriginaisDoNovoEstado[estadoDaVez][j];
+				//cout << AFND[{aux, alfabeto[i]}].size() << endl;
 				for(int k = 0; k < (int)this -> AFND[ {aux, this -> alfabeto[i]} ].size(); k++){
 					string aux2 = AFND[ {aux, this -> alfabeto[i]} ][k];
 					if(!estadoJaVisitado[aux2]){
